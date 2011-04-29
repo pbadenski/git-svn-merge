@@ -3,10 +3,14 @@ Licensed under GNU General Public License v2.
 Merge support is based on cherry-picking and may not satisfy your needs - but it works.
 
 Usage:
-	 git svn merge <list_of_git_commits>..
+		git svn merge <list_of_git_commits>..
+	and afterwards
+		git svn dcommit
 
 If you receive an error continue with:
 	 git svn merge --continue
+
+See bash test scripts to get more idea on how to use it and what's exactly going on. 
 
 THIS SOFTWARE IS STILL WORK IN PROGRESS AND WILL DAMAGE YOUR DATA!
 USE WITH CAUTION!
