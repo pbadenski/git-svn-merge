@@ -574,7 +574,11 @@ sub cmd_dcommit {
 				my $repos_root = $gs->repos_root;
 				$url =~ /$repos_root(.*)/;
 				my $merge_source = $1;
-				$mergeinfo =~ s/($merge_source\:.*)/$1,$cherrypicked_commit/;
+				unless ($mergeinfo and $mergeinfo =~ s/($merge_source\:.*)/$1,$cherrypicked_commit/) 
+				{
+					$mergeinfo .= "\n" if defined $mergeinfo;
+					$mergeinfo .= "$merge_source:$cherrypicked_commit";
+				}
 			}
 			my $svn_log = join("\n", grep { $_ !~ /git-svn.*/ } split(/\n/, $log));
 			my %ed_opts = ( r => $last_rev,
