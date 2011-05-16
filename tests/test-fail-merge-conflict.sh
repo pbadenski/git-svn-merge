@@ -1,6 +1,7 @@
 #!/bin/zsh
-source test-helper.sh
+source helper.sh
 
+{
 setup_svn_repository
 
 git svn clone -T trunk -b branches file:///$SVN_REPO_DIR/svn-project git-svn-project
@@ -35,5 +36,6 @@ cd git-svn-project
 		git svn dcommit
 		git log -1
 		git svn propget svn:mergeinfo
+}		> $0.log 2>&1
 		assert_equals "`git svn propget svn:mergeinfo`" "/svn-project/branches/feature:4-5,8,9"
 cd ..

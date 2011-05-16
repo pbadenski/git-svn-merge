@@ -28,8 +28,11 @@ function assert_equals {
 			echo "$fg[green]Expected:$fg[white] $2"
 			echo "$fg[red]Actual:$fg[white]   $1"
 			exit
+		else
+			echo "$fg[green]TEST PASSED."
+			echo "\t$fg[green]Expected:$fg[white] $2"
+			echo "\t$fg[green]Actual:$fg[white]   $1"
 		fi
-		echo "$fg[green]TEST PASSED."
 }
 
 function assert_contains {
@@ -37,7 +40,10 @@ function assert_contains {
 			echo "$fg[red]TEST FAILED !!! Should contain."
 			echo "$fg[green]Expected:$fg[white] $2"
 			echo "$fg[red]Actual:$fg[white]   $1"
+		else
+			echo "$fg[green]TEST PASSED."
+			echo "$fg[green]Expected:$fg[white] $2"
+			echo "$fg[green]Actual:$fg[white]   $1"
 		fi
-		echo "$fg[green]TEST PASSED."
 }
 
