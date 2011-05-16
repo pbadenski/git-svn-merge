@@ -6,11 +6,11 @@ Merge support is based on cherry-picking and may not satisfy your needs - but it
 # Instructions
 If you're using Git 1.7.5:
 
- * replace old 'git-svn-merge' script with this one
+ * replace old 'git-svn' script with this one
 
 Otherwise:
 
- * use your favourite diff tool to apply changes (you may want to download original git-svn-merge and perform 3-way merge),
+ * use your favourite diff tool to apply changes (you may want to download original 'git-svn' and perform 3-way merge),
  * afterwards verify everything works fine by running "tests/test.sh"
 
 Usage:
