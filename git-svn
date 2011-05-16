@@ -88,7 +88,8 @@ my ($_stdin, $_help, $_edit,
 	$_version, $_fetch_all, $_no_rebase, $_fetch_parent,
 	$_merge, $_strategy, $_dry_run, $_local,
 	$_prefix, $_no_checkout, $_url, $_verbose,
-	$_git_format, $_commit_url, $_tag, $_merge_info, $_continue);
+	$_git_format, $_commit_url, $_tag, $_merge_info, $_continue,
+	$_mainline);
 $Git::SVN::_follow_parent = 1;
 $_q ||= 0;
 my %remote_opts = ( 'username=s' => \$Git::SVN::Prompt::_username,
@@ -254,6 +255,9 @@ my %cmd = (
 			"Merge specified revision using cherry picking",
 		{'continue' => \$_continue,
 		 'edit|e' => \$_edit } ],
+	'cherry-pick' => [ \&cmd_cherry_pick,
+			"Cherry pick specified revisions using cherry picking",
+		{ 'mainline|m=i' => \$_mainline} ],
 );
 
 my $cmd;
@@ -1129,6 +1133,31 @@ sub cmd_merge {
 	command('commit', '-m', $merge_msg);
 	unlink($svn_merge_msg_filename);
 	unlink($svn_merge_filename);
+}
+
+sub cmd_cherry_pick {
+	"@_" or die "List of git revisions required as a command-line argument\n";
+
+	my $merge_msg = "";
+	my $merge_msg_filename = "$ENV{GIT_DIR}/MERGE_MSG"; 
+
+	while (my $revision = shift) {
+		my $result = eval {
+			my @arguments;
+			push(@arguments, "--no-commit");
+			push(@arguments, "--mainline") if ($_mainline);
+			push(@arguments, "$_mainline") if ($_mainline);
+			push(@arguments, $revision);
+			command('cherry-pick', @arguments);
+		};
+		if (-e $merge_msg_filename) {
+			open my $log_fh, '<',  $merge_msg_filename or croak $!;
+				$merge_msg = join("", <$log_fh>);
+			close $log_fh;
+		};	
+		$merge_msg =~ s/git-svn-id/git-svn-cherrypick/g;
+		command('commit', '-m', $merge_msg);
+	}
 }
 
 sub escape_url {
