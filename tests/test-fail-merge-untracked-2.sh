@@ -1,9 +1,9 @@
-#!/bin/bash
-. test-helper.sh
+#!/bin/zsh
+source test-helper.sh
 
 setup_svn_repository
 
-git svn clone -T trunk -b branches file:///home/pbadenski/git-svn-merge/svn-repository/svn-project git-svn-project
+git svn clone -T trunk -b branches file:///$SVN_REPO_DIR/svn-project git-svn-project
 
 cd git-svn-project
 	git co feature
@@ -28,7 +28,6 @@ cd git-svn-project
 		git svn propget svn:mergeinfo
 		git svn dcommit
 		git log -1
-		echo "Expected: /svn-project/branches/feature:4-5,8,7" 
-		echo "Actual:   `git svn propget svn:mergeinfo`"
+		assert_equals `git svn propget svn:mergeinfo` "/svn-project/branches/feature:4-5,9,8"
 cd ..
 

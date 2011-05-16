@@ -1,5 +1,5 @@
-#!/bin/bash
-. test-helper.sh
+#!/bin/zsh
+source test-helper.sh
 
 setup_svn_repository
 
@@ -22,7 +22,6 @@ cd git-svn-project
 		git log -1
 		git svn dcommit
 		git svn propget svn:mergeinfo
-		echo "Expected: /svn-project/branches/feature:4-5,7,8" 
-		echo "Actual:   `git svn propget svn:mergeinfo`"
+		assert_equals `git svn propget svn:mergeinfo` "/svn-project/branches/feature:4-5,8,9"
 cd ..
 
