@@ -1182,10 +1182,12 @@ sub append_transitive_mergeinfo {
 	my $out = IO::File->new_tmpfile;
 	$ctx->diff([], $gs->repos_root, $rev-1, $gs->repos_root, $rev, 1, 1, 0, $out, $out, $pool);
 	$out->seek(0, 0);
-	my $content = join("", <$out>);
-	while ($content =~ /Merged (.*):r(.*)/g) {
-		print($1." -> ".$2);
-		$ret = $ret."git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
+	my $line;
+	while ($line = <$out>) {
+		if ($line =~ /Merged (.*):r(.*)/g) {
+			print($1." -> ".$2);
+			$ret = $ret."git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
+		}
 	};
 	close $out or croak $!;
 	$ret;
