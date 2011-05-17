@@ -1109,10 +1109,12 @@ sub cmd_merge {
 		my $result = eval {
 			command('cherry-pick', '--no-commit', $revision);
 		};
+
 		if (-e $merge_msg_filename) {
 			open my $log_fh, '<',  $merge_msg_filename or croak $!;
 				$merge_msg = $merge_msg . "\n" . join("", <$log_fh>);
 			close $log_fh;
+			$merge_msg = $merge_msg.append_transitive_mergeinfo($merge_msg);
 		};	
 		if ($@) {
 			my @unmerged = @_;
@@ -1154,10 +1156,39 @@ sub cmd_cherry_pick {
 			open my $log_fh, '<',  $merge_msg_filename or croak $!;
 				$merge_msg = join("", <$log_fh>);
 			close $log_fh;
+			$merge_msg = $merge_msg.append_transitive_mergeinfo($merge_msg);
 		};	
 		$merge_msg =~ s/git-svn-id/git-svn-cherrypick/g;
 		command('commit', '-m', $merge_msg);
 	}
+}
+
+sub append_transitive_mergeinfo {
+	my $ret = "";
+	my ($message) = @_;
+	::_req_svn();
+	my $ctx = SVN::Client->new(
+		auth    => Git::SVN::Ra::_auth_providers(),
+	);
+
+	$message =~ /git-svn-id.*/;
+	my ($url, $rev, undef) = extract_metadata($&);
+	my $gs = Git::SVN->find_by_url($url);
+
+	# older SVN (1.1.x) doesn't take $pool as the last parameter for
+	# $ctx->diff(), so we'll create a default one
+	my $pool = SVN::Pool->new_default_sub;
+	my $ra_invalid = 1; # this will open a new SVN::Ra connection to $gs->repos_root
+	my $out = IO::File->new_tmpfile;
+	$ctx->diff([], $gs->repos_root, $rev-1, $gs->repos_root, $rev, 1, 1, 0, $out, $out, $pool);
+	$out->seek(0, 0);
+	my $content = join("", <$out>);
+	while ($content =~ /Merged (.*):r(.*)/g) {
+		print($1." -> ".$2);
+		$ret = $ret."git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
+	};
+	close $out or croak $!;
+	$ret;
 }
 
 sub escape_url {
