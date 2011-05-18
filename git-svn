@@ -574,7 +574,7 @@ sub cmd_dcommit {
 			my $log = get_commit_entry($d)->{log};
 			while ($log =~ /git-svn-cherrypick.*/g)
 			{
-				my ($url, $cherrypicked_commit, undef) = extract_any_metadata("git-svn-cherrypick", $&);
+				my ($url, $cherrypicked_commit, undef) = extract_cherrypick_metadata($&);
 				my $repos_root = $gs->repos_root;
 				$url =~ /$repos_root(.*)/;
 				my $merge_source = $1;
@@ -1175,7 +1175,7 @@ sub append_transitive_mergeinfo {
 	my ($url, $rev, undef) = extract_metadata($&);
 	my $gs = Git::SVN->find_by_url($url);
 
-	my @revs = ($rev);
+	my @revs = extract_revs_from_list($rev);
 	my $curr_rev;
 	while ($curr_rev = shift(@revs)) {
 		# older SVN (1.1.x) doesn't take $pool as the last parameter for
@@ -1188,13 +1188,20 @@ sub append_transitive_mergeinfo {
 		my $line;
 		while ($line = <$out>) {
 			if ($line =~ /Merged (.*):r(.*)/g) {
-				push(@revs, $2);
+				push(@revs, extract_revs_from_list($2));
 				$ret = $ret."git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
 			}
 		};
 		close $out or croak $!;
 	};
 	$ret;
+}
+
+sub extract_revs_from_list {
+	my ($list) = @_;
+	$list =~ s/(\d*)-(\d*)/join(',', $1..$2)/ge;
+	my @revs = split(/,/, $list);
+	@revs;
 }
 
 sub escape_url {
@@ -1619,6 +1626,13 @@ sub extract_any_metadata {
 
 sub extract_metadata {
 	return extract_any_metadata("git-svn-id", shift);
+}
+
+sub extract_cherrypick_metadata {
+	my $id = shift or return (undef, undef, undef);
+	my ($url, $rev, $uuid) = ($id =~ /^\s*git-svn-cherrypick:\s+(.*)\@(\d+-?\d*)
+							\s([a-f\d\-]+)$/ix);
+	return ($url, $rev, $uuid);
 }
 
 sub cmt_metadata {
