@@ -32,9 +32,9 @@ See bash test scripts to get more idea on how to use it and what's exactly going
 USE WITH CAUTION!**
 
 #Known limitations (vel bugs)
- * merge via more than 2 branches is marked as merge from last branch and not merge from all branches,
- * errors may not handled properly in some cases, if you get an error verify that all commits were merged properly,
+ * merge via more than 2 branches may not work properly for some corner cases (see tests),
+ * errors may not be handled properly in some cases, if you get an error verify that all commits were merged properly,
  * there's no verification of whether certain commit was already merged,
  * there's no support for reverse merges (equivalent of 'git revert'),
  * there's no support for reintegrate,
- * renames may not handled properly (consider using 'diff.renameLimit' set to 0)
+ * renames may not be handled properly (consider using 'diff.renameLimit' set to 0)
