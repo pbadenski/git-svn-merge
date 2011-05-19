@@ -5,6 +5,7 @@ SVN_REPO_DIR="`pwd`/svn-repository"
 
 function setup_svn_repository
 {
+	git init
 	svnadmin create svn-repository
 	svn mkdir file:///$SVN_REPO_DIR/svn-project -m"Project"
 	svn mkdir file:///$SVN_REPO_DIR/svn-project/trunk -m"Trunk"
