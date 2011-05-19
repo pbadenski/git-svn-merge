@@ -1094,12 +1094,12 @@ sub cmd_merge {
 			"Use '--continue' or delete these files manually.";
 	}
 	if ($_continue) {
-			open my $merge_msg_fh, '<',  $svn_merge_msg_filename or croak $!;
-				$merge_msg = join("", <$merge_msg_fh>);
-			close $merge_msg_fh;
-			open my $merge_fh, '<',  $svn_merge_filename or croak $!;
-				@_ = split(/ /, <$merge_fh>);
-			close $merge_fh;
+		open my $merge_msg_fh, '<',  $svn_merge_msg_filename or croak $!;
+			$merge_msg = join("", <$merge_msg_fh>);
+		close $merge_msg_fh;
+		open my $merge_fh, '<',  $svn_merge_filename or croak $!;
+			@_ = split(/ /, <$merge_fh>);
+		close $merge_fh;
 	}
 	else {
 		"@_" or die "List of git revisions required as a command-line argument\n";
@@ -1196,7 +1196,7 @@ sub append_transitive_mergeinfo {
 		while ($line = <$out>) {
 			if ($line =~ /Merged (.*):r(.*)/g) {
 				push(@revs, extract_revs_from_list($2));
-				$ret .= "git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
+				$ret .= "git-svn-cherrypick: ".$gs->repos_root.$1."@".$2."\n";
 			}
 		};
 		close $out or croak $!;
@@ -1637,8 +1637,8 @@ sub extract_metadata {
 
 sub extract_cherrypick_metadata {
 	my $id = shift or return (undef, undef, undef);
-	my ($url, $rev, $uuid) = ($id =~ /^\s*git-svn-cherrypick:\s+(.*)\@(\d+-?\d*)
-							\s([a-f\d\-]+)$/ix);
+	my ($url, $rev, $uuid) = 
+		($id =~ /^\s*git-svn-cherrypick:\s+(.*)\@(\d+-?\d*)(?:\s([a-f\d\-]+))?$/ix);
 	return ($url, $rev, $uuid);
 }
 
