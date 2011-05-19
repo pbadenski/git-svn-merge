@@ -21,10 +21,13 @@ and afterwards
 
     git svn dcommit
 
-
-If you receive an error continue with:
+If you receive an error after fixing the problem continue with:
 
     git svn merge --continue
+
+You can also use cherrypicking (which is a thin wrapper on 'git cherry-pick')
+
+    git svn cherry-pick <commit>
 
 See bash test scripts to get more idea on how to use it and what's exactly going on. 
 
