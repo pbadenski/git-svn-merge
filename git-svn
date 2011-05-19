@@ -1112,7 +1112,7 @@ sub cmd_merge {
 
 		if (-e $merge_msg_filename) {
 			open my $log_fh, '<',  $merge_msg_filename or croak $!;
-				$merge_msg = $merge_msg . "\n" . join("", <$log_fh>);
+				$merge_msg .= "\n" . join("", <$log_fh>);
 			close $log_fh;
 			$merge_msg = $merge_msg.append_transitive_mergeinfo($merge_msg);
 		};	
@@ -1131,8 +1131,7 @@ sub cmd_merge {
 		}
 		unlink($merge_msg_filename);
 	}
-	$merge_msg =~ s/git-svn-id/git-svn-cherrypick/g;
-	command('commit', '-m', $merge_msg);
+	commit_merge($merge_msg);
 	unlink($svn_merge_msg_filename);
 	unlink($svn_merge_filename);
 }
@@ -1156,11 +1155,19 @@ sub cmd_cherry_pick {
 			open my $log_fh, '<',  $merge_msg_filename or croak $!;
 				$merge_msg = join("", <$log_fh>);
 			close $log_fh;
-			$merge_msg = $merge_msg.append_transitive_mergeinfo($merge_msg);
+			$merge_msg .= append_transitive_mergeinfo($merge_msg);
 		};	
-		$merge_msg =~ s/git-svn-id/git-svn-cherrypick/g;
-		command('commit', '-m', $merge_msg);
+		commit_merge($merge_msg);
 	}
+}
+
+sub commit_merge {
+	my $message = "@_";
+	my @git_svn_ids = ($message=~ /git-svn-id.*/g);
+	$message =~ s/\ngit-svn-id.*\n//g;
+	$message .= "\n".join("\n", @git_svn_ids);
+	$message =~ s/git-svn-id/git-svn-cherrypick/g;
+	command('commit', '-m', $message);
 }
 
 sub append_transitive_mergeinfo {
@@ -1189,7 +1196,7 @@ sub append_transitive_mergeinfo {
 		while ($line = <$out>) {
 			if ($line =~ /Merged (.*):r(.*)/g) {
 				push(@revs, extract_revs_from_list($2));
-				$ret = $ret."git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
+				$ret .= "git-svn-cherrypick: ".$gs->repos_root.$1."@".$2." 11111-1111-1111-11111\n";
 			}
 		};
 		close $out or croak $!;
