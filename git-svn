@@ -1091,7 +1091,7 @@ sub cmd_merge {
 
 	if (!$_continue && -e $svn_merge_msg_filename && -e $svn_merge_filename) {
 		die "Git svn merge is in progress.\n",
-			"Use '--continue' or delete these files manually.";
+			"Use '--continue' or $svn_merge_msg_filename and $svn_merge_filename manually.";
 	}
 	if ($_continue) {
 		open my $merge_msg_fh, '<',  $svn_merge_msg_filename or croak $!;
@@ -1127,7 +1127,7 @@ sub cmd_merge {
 			open my $merge_msg_fh, '>',  $svn_merge_msg_filename or croak $!;
 				print $merge_msg_fh "$merge_msg" or croak $!;
 			close $merge_msg_fh;
-			die "$@\nBla bla bla. Use 'git svn merge --continue' after you resolve these issues.";
+			die "$@\nUse 'git svn merge --continue' after you resolve these issues.";
 		}
 		unlink($merge_msg_filename);
 	}
